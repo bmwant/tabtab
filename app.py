@@ -11,6 +11,8 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler,
                           Filters, PreCheckoutQueryHandler, ShippingQueryHandler)
 import logging
 
+import config
+
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -113,7 +115,7 @@ def successful_payment_callback(bot, update):
 
 def main():
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater(token="BOT_TOKEN")
+    updater = Updater(token=config.BOT_TOKEN)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
