@@ -1,23 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-"""Basic example for a bot that can receive payment from user.
+from telegram import (
+    LabeledPrice,
+    ShippingOption,
+    ReplyKeyboardMarkup,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    KeyboardButton,
+)
+from telegram.ext import (
+    Updater,
+    CommandHandler,
+    MessageHandler,
+    Filters,
+    PreCheckoutQueryHandler,
+    ShippingQueryHandler,
+    CallbackQueryHandler,
 
-This program is dedicated to the public domain under the CC0 license.
-"""
-
-from telegram import (LabeledPrice, ShippingOption)
-from telegram.ext import (Updater, CommandHandler, MessageHandler,
-                          Filters, PreCheckoutQueryHandler, ShippingQueryHandler)
-import logging
+)
 
 import config
-
-# Enable logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
-
-logger = logging.getLogger(__name__)
+from utils import logger
 
 
 def error(bot, update, error):
@@ -26,9 +29,17 @@ def error(bot, update, error):
 
 
 def start_callback(bot, update):
-    msg = "Use /shipping to get an invoice for shipping-payment, "
-    msg += "or /noshipping for an invoice without shipping."
-    update.message.reply_text(msg)
+    button_list = [
+        InlineKeyboardButton('Get meme', callback_data='meme'),
+        InlineKeyboardButton('Get info', callback_data='info'),
+    ]
+    chat_id = update.message.chat_id
+    reply_markup = InlineKeyboardMarkup([button_list])
+    bot.send_message(
+        chat_id,
+        'Press get meme and enter meme name',
+        reply_markup=reply_markup,
+    )
 
 
 def start_with_shipping_callback(bot, update):
@@ -38,13 +49,11 @@ def start_with_shipping_callback(bot, update):
     # select a payload just for you to recognize its the donation from your bot
     payload = "Custom-Payload"
     # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
-    provider_token = "PROVIDER_TOKEN"
+    provider_token = config.PAYMENTWALL_TEST_TOKEN
     start_parameter = "test-payment"
-    currency = "USD"
-    # price in dollars
-    price = 1
-    # price * 100 so as to include 2 d.p.
-    # check https://core.telegram.org/bots/payments#supported-currencies for more details
+    # https://core.telegram.org/bots/payments#supported-currencies
+    currency = "UAH"
+    price = 100
     prices = [LabeledPrice("Test", price * 100)]
 
     # optionally pass need_name=True, need_phone_number=True,
@@ -113,28 +122,50 @@ def successful_payment_callback(bot, update):
     update.message.reply_text("Thank you for your payment!")
 
 
+def the_callback(bot, update):
+    query = update.callback_query
+
+    bot.edit_message_text(text="Selected option: {}".format(query.data),
+                          chat_id=query.message.chat_id,
+                          message_id=query.message.message_id)
+
+
+def memes_uploader(bot, update):
+    print('We got phot uploaded')
+    photo = update.message.photo[-1]
+    file = photo.get_file()
+    import pdb; pdb.set_trace()
+    file.download(custom_path='f.jpg')
+
+
+def send_meme_back(bot, update):
+    file_id = 'AgADAgADBakxG8zCKEquNQl09cAjNe60qw4ABPRRFzZpUEqWgFkAAgI'
+    bot.send_photo(chat_id=update.effective_chat.id, photo=file_id)
+
+
 def main():
-    # Create the EventHandler and pass it your bot's token.
+    logger.info('Bot is running...')
     updater = Updater(token=config.BOT_TOKEN)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    # simple start function
-    dp.add_handler(CommandHandler("start", start_callback))
+    dp.add_handler(CommandHandler('start', start_callback))
+    dp.add_handler(CommandHandler('give', send_meme_back))
 
     # Add command handler to start the payment invoice
     dp.add_handler(CommandHandler("shipping", start_with_shipping_callback))
-    dp.add_handler(CommandHandler("noshipping", start_without_shipping_callback))
 
     # Optional handler if your product requires shipping
     dp.add_handler(ShippingQueryHandler(shipping_callback))
 
+    dp.add_handler(MessageHandler(Filters.photo, memes_uploader))
     # Pre-checkout handler to final check
     dp.add_handler(PreCheckoutQueryHandler(precheckout_callback))
 
     # Success! Notify your user!
     dp.add_handler(MessageHandler(Filters.successful_payment, successful_payment_callback))
+    dp.add_handler(CallbackQueryHandler(the_callback))
 
     # log all errors
     dp.add_error_handler(error)

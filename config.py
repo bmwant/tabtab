@@ -2,6 +2,7 @@ import os
 
 
 BOT_TOKEN = None
+PAYMENTWALL_TEST_TOKEN = None
 
 
 # Override values from config_local.py
