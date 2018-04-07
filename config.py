@@ -3,6 +3,7 @@ import os
 
 BOT_TOKEN = None
 PAYMENTWALL_TEST_TOKEN = None
+DATABASE = 'database.db'
 
 
 # Override values from config_local.py

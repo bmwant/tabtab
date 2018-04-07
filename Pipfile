@@ -8,6 +8,7 @@ name = "pypi"
 [packages]
 
 python-telegram-bot = "*"
+attrs = "*"
 
 
 [dev-packages]
