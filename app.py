@@ -18,6 +18,8 @@ from telegram.ext import (
     CallbackQueryHandler,
 
 )
+from filters import FilterGetInfo, FilterGetMeme
+
 
 import config
 from utils import logger
@@ -30,11 +32,11 @@ def error(bot, update, error):
 
 def start_callback(bot, update):
     button_list = [
-        InlineKeyboardButton('Get meme', callback_data='meme'),
-        InlineKeyboardButton('Get info', callback_data='info'),
+        InlineKeyboardButton('Get meme'),
+        InlineKeyboardButton('Get info'),
     ]
     chat_id = update.message.chat_id
-    reply_markup = InlineKeyboardMarkup([button_list])
+    reply_markup = ReplyKeyboardMarkup([button_list], one_time_keyboard=True)
     bot.send_message(
         chat_id,
         'Press get meme and enter meme name',
@@ -143,6 +145,29 @@ def send_meme_back(bot, update):
     bot.send_photo(chat_id=update.effective_chat.id, photo=file_id)
 
 
+def get_meme_callback(bot, update):
+    chat_id = update.message.chat_id
+    message = (
+        'Enter a meme name to get a picture for it'
+    )
+    bot.send_message(
+        chat_id,
+        message,
+    )
+
+
+def get_info_callback(bot, update):
+    chat_id = update.message.chat_id
+    message = (
+        'Some information about this bot\n'
+        'And how to get a meme by a name\n'
+    )
+    bot.send_message(
+        chat_id,
+        message,
+    )
+
+
 def main():
     logger.info('Bot is running...')
     updater = Updater(token=config.BOT_TOKEN)
@@ -164,8 +189,14 @@ def main():
     dp.add_handler(PreCheckoutQueryHandler(precheckout_callback))
 
     # Success! Notify your user!
-    dp.add_handler(MessageHandler(Filters.successful_payment, successful_payment_callback))
+    dp.add_handler(MessageHandler(Filters.successful_payment,
+                                  successful_payment_callback))
     dp.add_handler(CallbackQueryHandler(the_callback))
+
+    filter_get_meme = FilterGetMeme()
+    filter_get_info = FilterGetInfo()
+    dp.add_handler(MessageHandler(filter_get_meme, get_meme_callback))
+    dp.add_handler(MessageHandler(filter_get_info, get_info_callback))
 
     # log all errors
     dp.add_error_handler(error)
