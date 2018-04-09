@@ -5,15 +5,16 @@ from contextlib import contextmanager
 import attr
 
 import config
+from utils import logger
 
 
 @attr.s
 class Meme(object):
-    id = attr.ib()
-    active = attr.ib()
-    alias = attr.ib()
-    file_id = attr.ib()
-    url = attr.ib()
+    id = attr.ib(default=None)
+    active = attr.ib(default=None)
+    alias = attr.ib(default=None)
+    file_id = attr.ib(default=None)
+    url = attr.ib(default=None)
 
 
 @contextmanager
@@ -36,12 +37,13 @@ def with_connection(func):
 
 
 @with_connection
-def insert_new_meme(cursor):
+def insert_new_meme(cursor, meme):
     query = (
         'INSERT INTO meme(active, alias, file_id, url) '
         'VALUES(?, ?, ?, ?);'
     )
-    values = (1, 'doge', 'AgADAgADBakxG8zCKEquNQl09cAjNe60qw4ABPRRFzZpUEqWgFkAAgI', 'https://example.com')
+    logger.debug('Inserting %s...' % meme)
+    values = (1, meme.alias, meme.file_id, meme.url)
     cursor.execute(query, values)
 
 

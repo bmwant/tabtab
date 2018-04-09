@@ -5,6 +5,7 @@ from telegram import (
     ShippingOption,
     ReplyKeyboardMarkup,
     InlineKeyboardButton,
+    MessageEntity,
     InlineKeyboardMarkup,
     KeyboardButton,
 )
@@ -18,11 +19,15 @@ from telegram.ext import (
     CallbackQueryHandler,
 
 )
-from filters import FilterGetInfo, FilterGetMeme
+from filters import FilterGetInfo, FilterGetMeme, FilterMemeName
 
 
 import config
 from utils import logger
+from database import Meme, insert_new_meme
+
+
+TMP_MEME = Meme()
 
 
 def error(bot, update, error):
@@ -132,12 +137,34 @@ def the_callback(bot, update):
                           message_id=query.message.message_id)
 
 
-def memes_uploader(bot, update):
-    print('We got phot uploaded')
+def memes_uploader_step1(bot, update):
+    global TMP_MEME
     photo = update.message.photo[-1]
     file = photo.get_file()
-    import pdb; pdb.set_trace()
-    file.download(custom_path='f.jpg')
+    TMP_MEME.file_id = file.file_id
+    logger.debug('Get image for a meme')
+    update.message.reply_text('Now enter alias for the meme')
+
+
+def memes_uploader_step2(bot, update):
+    global TMP_MEME
+    TMP_MEME.alias = update.message.text
+    logger.debug('Got an alias for a meme')
+    update.message.reply_text('Now enter a url for a meme')
+
+
+def memes_uploader_step3(bot, update):
+    global TMP_MEME
+    TMP_MEME.url = update.message.text
+    logger.debug('Got url for a meme')
+    _insert_new_meme(TMP_MEME)
+    TMP_MEME = Meme()  # Reset global state
+    update.message.reply_text('New meme added successfully')
+
+
+def _insert_new_meme(tmp_meme):
+    insert_new_meme(tmp_meme)
+    logger.info('Successfully registered new meme %s' % tmp_meme.alias)
 
 
 def send_meme_back(bot, update):
@@ -184,7 +211,13 @@ def main():
     # Optional handler if your product requires shipping
     dp.add_handler(ShippingQueryHandler(shipping_callback))
 
-    dp.add_handler(MessageHandler(Filters.photo, memes_uploader))
+    dp.add_handler(MessageHandler(Filters.photo, memes_uploader_step1))
+    filter_meme_name = FilterMemeName()
+    dp.add_handler(MessageHandler(filter_meme_name, memes_uploader_step2))
+    dp.add_handler(MessageHandler(
+        Filters.entity(MessageEntity.URL) |
+        Filters.entity(MessageEntity.TEXT_LINK),
+        memes_uploader_step3))
     # Pre-checkout handler to final check
     dp.add_handler(PreCheckoutQueryHandler(precheckout_callback))
 
