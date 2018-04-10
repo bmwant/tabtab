@@ -6,8 +6,6 @@ from telegram import (
     ReplyKeyboardMarkup,
     InlineKeyboardButton,
     MessageEntity,
-    InlineKeyboardMarkup,
-    KeyboardButton,
 )
 from telegram.ext import (
     Updater,
@@ -16,8 +14,6 @@ from telegram.ext import (
     Filters,
     PreCheckoutQueryHandler,
     ShippingQueryHandler,
-    CallbackQueryHandler,
-
 )
 
 
@@ -156,7 +152,6 @@ def main():
     # Success! Notify your user!
     dp.add_handler(MessageHandler(Filters.successful_payment,
                                   successful_payment_callback))
-    dp.add_handler(CallbackQueryHandler(the_callback))
 
     filter_get_info = FilterGetInfo()
     filter_get_meme = FilterGetMeme()
