@@ -19,15 +19,12 @@ from telegram.ext import (
     CallbackQueryHandler,
 
 )
-from filters import FilterGetInfo, FilterGetMeme, FilterMemeName
 
 
 import config
+import handlers
 from utils import logger
-from database import Meme, insert_new_meme
-
-
-TMP_MEME = Meme()
+from filters import FilterGetInfo, FilterMemeName
 
 
 def error(bot, update, error):
@@ -137,64 +134,6 @@ def the_callback(bot, update):
                           message_id=query.message.message_id)
 
 
-def memes_uploader_step1(bot, update):
-    global TMP_MEME
-    photo = update.message.photo[-1]
-    file = photo.get_file()
-    TMP_MEME.file_id = file.file_id
-    logger.debug('Get image for a meme')
-    update.message.reply_text('Now enter alias for the meme')
-
-
-def memes_uploader_step2(bot, update):
-    global TMP_MEME
-    TMP_MEME.alias = update.message.text
-    logger.debug('Got an alias for a meme')
-    update.message.reply_text('Now enter a url for a meme')
-
-
-def memes_uploader_step3(bot, update):
-    global TMP_MEME
-    TMP_MEME.url = update.message.text
-    logger.debug('Got url for a meme')
-    _insert_new_meme(TMP_MEME)
-    TMP_MEME = Meme()  # Reset global state
-    update.message.reply_text('New meme added successfully')
-
-
-def _insert_new_meme(tmp_meme):
-    insert_new_meme(tmp_meme)
-    logger.info('Successfully registered new meme %s' % tmp_meme.alias)
-
-
-def send_meme_back(bot, update):
-    file_id = 'AgADAgADBakxG8zCKEquNQl09cAjNe60qw4ABPRRFzZpUEqWgFkAAgI'
-    bot.send_photo(chat_id=update.effective_chat.id, photo=file_id)
-
-
-def get_meme_callback(bot, update):
-    chat_id = update.message.chat_id
-    message = (
-        'Enter a meme name to get a picture for it'
-    )
-    bot.send_message(
-        chat_id,
-        message,
-    )
-
-
-def get_info_callback(bot, update):
-    chat_id = update.message.chat_id
-    message = (
-        'Some information about this bot\n'
-        'And how to get a meme by a name\n'
-    )
-    bot.send_message(
-        chat_id,
-        message,
-    )
-
-
 def main():
     logger.info('Bot is running...')
     updater = Updater(token=config.BOT_TOKEN)
@@ -203,7 +142,6 @@ def main():
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler('start', start_callback))
-    dp.add_handler(CommandHandler('give', send_meme_back))
 
     # Add command handler to start the payment invoice
     dp.add_handler(CommandHandler("shipping", start_with_shipping_callback))
@@ -211,13 +149,15 @@ def main():
     # Optional handler if your product requires shipping
     dp.add_handler(ShippingQueryHandler(shipping_callback))
 
-    dp.add_handler(MessageHandler(Filters.photo, memes_uploader_step1))
+    dp.add_handler(MessageHandler(Filters.photo,
+                                  handlers.memes_uploader_step1))
     filter_meme_name = FilterMemeName()
-    dp.add_handler(MessageHandler(filter_meme_name, memes_uploader_step2))
+    dp.add_handler(MessageHandler(filter_meme_name,
+                                  handlers.meme_name_handler))
     dp.add_handler(MessageHandler(
         Filters.entity(MessageEntity.URL) |
         Filters.entity(MessageEntity.TEXT_LINK),
-        memes_uploader_step3))
+        handlers.memes_uploader_step3))
     # Pre-checkout handler to final check
     dp.add_handler(PreCheckoutQueryHandler(precheckout_callback))
 
@@ -226,10 +166,9 @@ def main():
                                   successful_payment_callback))
     dp.add_handler(CallbackQueryHandler(the_callback))
 
-    filter_get_meme = FilterGetMeme()
     filter_get_info = FilterGetInfo()
-    dp.add_handler(MessageHandler(filter_get_meme, get_meme_callback))
-    dp.add_handler(MessageHandler(filter_get_info, get_info_callback))
+    dp.add_handler(MessageHandler(filter_get_info,
+                                  handlers.get_info_callback))
 
     # log all errors
     dp.add_error_handler(error)
