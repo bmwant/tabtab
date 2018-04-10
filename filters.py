@@ -11,7 +11,9 @@ class FilterParseMemeName(BaseFilter):
     def filter(self, message):
         pattern = r'[a-z]{4}\d{4}[a-z]{4}$'
         flags = re.IGNORECASE
-        return re.match(pattern, message.text, flags) is not None
+        if message.text:
+            return re.match(pattern, message.text, flags) is not None
+        return False
 
 
 class FilterGetInfo(BaseFilter):

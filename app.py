@@ -12,7 +12,6 @@ from telegram.ext import (
     MessageHandler,
     Filters,
     PreCheckoutQueryHandler,
-    ShippingQueryHandler,
 )
 
 
@@ -43,10 +42,10 @@ def start_callback(bot, update):
 
 def start_without_shipping_callback(bot, update):
     chat_id = update.message.chat_id
-    title = "Payment Example"
+    title = 'Pay for a meme'
     description = "Payment Example using python-telegram-bot"
     # select a payload just for you to recognize its the donation from your bot
-    payload = "Custom-Payload"
+    payload = config.PAYLOAD_KEY
     # See https://core.telegram.org/bots/payments#getting-a-token
     provider_token = config.PAYMENTWALL_TEST_TOKEN
     start_parameter = "test-payment"
@@ -58,18 +57,26 @@ def start_without_shipping_callback(bot, update):
 
     # optionally pass need_name=True, need_phone_number=True,
     # need_email=True, need_shipping_address=True, is_flexible=True
-    bot.sendInvoice(chat_id, title, description, payload,
-                    provider_token, start_parameter, currency, prices)
+    bot.sendInvoice(
+        chat_id,
+        title,
+        description,
+        payload,
+        provider_token,
+        start_parameter,
+        currency,
+        prices,
+        need_email=False,
+    )
 
 
-# after (optional) shipping, it's the pre-checkout
 def precheckout_callback(bot, update):
     query = update.pre_checkout_query
     # check the payload, is this from your bot?
-    if query.invoice_payload != 'Custom-Payload':
+    if query.invoice_payload != config.PAYLOAD_KEY:
         # answer False pre_checkout_query
         bot.answer_pre_checkout_query(pre_checkout_query_id=query.id, ok=False,
-                                      error_message="Something went wrong...")
+                                      error_message='Error! Contact support.')
     else:
         bot.answer_pre_checkout_query(pre_checkout_query_id=query.id, ok=True)
 
@@ -77,7 +84,7 @@ def precheckout_callback(bot, update):
 # finally, after contacting to the payment provider...
 def successful_payment_callback(bot, update):
     # do something after successful receive of payment?
-    update.message.reply_text("Thank you for your payment!")
+    update.message.reply_text('Successful payment!')
 
 
 def main():
