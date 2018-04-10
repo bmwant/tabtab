@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from telegram import (
     LabeledPrice,
-    ShippingOption,
     ReplyKeyboardMarkup,
     InlineKeyboardButton,
     MessageEntity,
@@ -42,40 +41,18 @@ def start_callback(bot, update):
     )
 
 
-def start_with_shipping_callback(bot, update):
-    chat_id = update.message.chat_id
-    title = "Payment Example"
-    description = "Payment Example using python-telegram-bot"
-    # select a payload just for you to recognize its the donation from your bot
-    payload = "Custom-Payload"
-    # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
-    provider_token = config.PAYMENTWALL_TEST_TOKEN
-    start_parameter = "test-payment"
-    # https://core.telegram.org/bots/payments#supported-currencies
-    currency = "UAH"
-    price = 100
-    prices = [LabeledPrice("Test", price * 100)]
-
-    # optionally pass need_name=True, need_phone_number=True,
-    # need_email=True, need_shipping_address=True, is_flexible=True
-    bot.sendInvoice(chat_id, title, description, payload,
-                    provider_token, start_parameter, currency, prices,
-                    need_name=True, need_phone_number=True,
-                    need_email=True, need_shipping_address=True, is_flexible=True)
-
-
 def start_without_shipping_callback(bot, update):
     chat_id = update.message.chat_id
     title = "Payment Example"
     description = "Payment Example using python-telegram-bot"
     # select a payload just for you to recognize its the donation from your bot
     payload = "Custom-Payload"
-    # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
-    provider_token = "PROVIDER_TOKEN"
+    # See https://core.telegram.org/bots/payments#getting-a-token
+    provider_token = config.PAYMENTWALL_TEST_TOKEN
     start_parameter = "test-payment"
-    currency = "USD"
-    # price in dollars
-    price = 1
+    # https://core.telegram.org/bots/payments#supported-currencies
+    currency = 'UAH'
+    price = 100
     # price * 100 so as to include 2 d.p.
     prices = [LabeledPrice("Test", price * 100)]
 
@@ -83,25 +60,6 @@ def start_without_shipping_callback(bot, update):
     # need_email=True, need_shipping_address=True, is_flexible=True
     bot.sendInvoice(chat_id, title, description, payload,
                     provider_token, start_parameter, currency, prices)
-
-
-def shipping_callback(bot, update):
-    query = update.shipping_query
-    # check the payload, is this from your bot?
-    if query.invoice_payload != 'Custom-Payload':
-        # answer False pre_checkout_query
-        bot.answer_shipping_query(shipping_query_id=query.id, ok=False,
-                                  error_message="Something went wrong...")
-        return
-    else:
-        options = list()
-        # a single LabeledPrice
-        options.append(ShippingOption('1', 'Shipping Option A', [LabeledPrice('A', 100)]))
-        # an array of LabeledPrice objects
-        price_list = [LabeledPrice('B1', 150), LabeledPrice('B2', 200)]
-        options.append(ShippingOption('2', 'Shipping Option B', price_list))
-        bot.answer_shipping_query(shipping_query_id=query.id, ok=True,
-                                  shipping_options=options)
 
 
 # after (optional) shipping, it's the pre-checkout
@@ -132,10 +90,7 @@ def main():
     dp.add_handler(CommandHandler('start', start_callback))
 
     # Add command handler to start the payment invoice
-    dp.add_handler(CommandHandler("shipping", start_with_shipping_callback))
-
-    # Optional handler if your product requires shipping
-    dp.add_handler(ShippingQueryHandler(shipping_callback))
+    dp.add_handler(CommandHandler('pay', start_without_shipping_callback))
 
     dp.add_handler(MessageHandler(Filters.photo,
                                   handlers.memes_uploader_step1))

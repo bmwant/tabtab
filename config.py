@@ -5,7 +5,7 @@ BOT_TOKEN = None
 PAYMENTWALL_TEST_TOKEN = None
 DATABASE = 'database.db'
 LIST_OF_ADMINS = [
-
+    # List of ints
 ]
 
 
