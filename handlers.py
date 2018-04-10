@@ -1,5 +1,5 @@
 from utils import logger
-from database import Meme, insert_new_meme, get_meme_file_id
+from database import Meme, insert_new_meme, get_meme_by_alias
 
 
 def meme_name_handler(bot, update):
@@ -46,8 +46,8 @@ def send_meme_back(bot, update):
     alias = update.message.text.strip().lower()
 
     try:
-        file_id = get_meme_file_id(alias)
-        bot.send_photo(chat_id=update.effective_chat.id, photo=file_id)
+        meme = get_meme_by_alias(alias)
+        bot.send_photo(chat_id=update.effective_chat.id, photo=meme.file_id)
     except ValueError:
         update.message.reply_text('No meme with such name %s!' % alias)
 

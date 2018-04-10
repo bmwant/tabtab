@@ -24,7 +24,7 @@ from telegram.ext import (
 import config
 import handlers
 from utils import logger
-from filters import FilterGetInfo, FilterMemeName
+from filters import FilterGetInfo, FilterParseMemeName, FilterGetMeme
 
 
 def error(bot, update, error):
@@ -151,7 +151,7 @@ def main():
 
     dp.add_handler(MessageHandler(Filters.photo,
                                   handlers.memes_uploader_step1))
-    filter_meme_name = FilterMemeName()
+    filter_meme_name = FilterParseMemeName()
     dp.add_handler(MessageHandler(filter_meme_name,
                                   handlers.meme_name_handler))
     dp.add_handler(MessageHandler(
@@ -167,9 +167,11 @@ def main():
     dp.add_handler(CallbackQueryHandler(the_callback))
 
     filter_get_info = FilterGetInfo()
+    filter_get_meme = FilterGetMeme()
     dp.add_handler(MessageHandler(filter_get_info,
                                   handlers.get_info_callback))
-
+    dp.add_handler(MessageHandler(filter_get_meme,
+                                  handlers.get_meme_callback))
     # log all errors
     dp.add_error_handler(error)
 

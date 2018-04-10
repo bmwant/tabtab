@@ -11,7 +11,7 @@ from utils import logger
 @attr.s
 class Meme(object):
     id = attr.ib(default=None)
-    active = attr.ib(default=None)
+    active = attr.ib(default=1)
     alias = attr.ib(default=None)
     file_id = attr.ib(default=None)
     url = attr.ib(default=None)
@@ -48,7 +48,7 @@ def insert_new_meme(cursor, meme):
 
 
 @with_connection
-def get_meme_file_id(cursor, alias):
+def get_meme_by_alias(cursor, alias):
     query = (
         'SELECT * FROM meme WHERE alias = ?;'
     )
@@ -60,5 +60,4 @@ def get_meme_file_id(cursor, alias):
 
 
 if __name__ == '__main__':
-    # insert_new_meme()
-    print(get_meme_file_id('doge'))
+    pass
