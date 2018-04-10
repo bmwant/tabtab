@@ -1,4 +1,4 @@
-from utils import logger
+from utils import logger, restricted
 from database import Meme, insert_new_meme, get_meme_by_alias
 
 
@@ -10,6 +10,7 @@ def meme_name_handler(bot, update):
     return memes_uploader_step2(bot, update)
 
 
+@restricted
 def memes_uploader_step1(bot, update):
     # Picture received, create meme object
     tmp_meme = Meme()
@@ -22,12 +23,14 @@ def memes_uploader_step1(bot, update):
     update.message.reply_text('Now enter alias for the meme')
 
 
+@restricted
 def memes_uploader_step2(bot, update):
     bot.tmp_meme.alias = update.message.text.strip().lower()
     logger.debug('Got an alias for a meme')
     update.message.reply_text('Now enter a url for a meme')
 
 
+@restricted
 def memes_uploader_step3(bot, update):
     bot.tmp_meme.url = update.message.text
     logger.debug('Got url for a meme')

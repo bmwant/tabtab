@@ -1,7 +1,7 @@
 import logging
 from functools import wraps
 
-LIST_OF_ADMINS = []
+import config
 
 
 # Enable logging
@@ -17,9 +17,10 @@ logger.setLevel(logging.DEBUG)
 def restricted(func):
     @wraps(func)
     def wrapped(bot, update, *args, **kwargs):
-        user_id = update.effective_user.id
-        if user_id not in LIST_OF_ADMINS:
-            print("Unauthorized access denied for {}.".format(user_id))
+        user = update.effective_user
+        if user.id not in config.LIST_OF_ADMINS:
+            logger.critical('Unauthorized access denied for %s.' % user.id)
+            logger.debug('User info %s', user)
             return
         return func(bot, update, *args, **kwargs)
     return wrapped

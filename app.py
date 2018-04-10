@@ -126,14 +126,6 @@ def successful_payment_callback(bot, update):
     update.message.reply_text("Thank you for your payment!")
 
 
-def the_callback(bot, update):
-    query = update.callback_query
-
-    bot.edit_message_text(text="Selected option: {}".format(query.data),
-                          chat_id=query.message.chat_id,
-                          message_id=query.message.message_id)
-
-
 def main():
     logger.info('Bot is running...')
     updater = Updater(token=config.BOT_TOKEN)
