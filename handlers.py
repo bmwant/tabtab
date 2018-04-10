@@ -1,5 +1,5 @@
 from utils import logger
-from database import Meme, insert_new_meme
+from database import Meme, insert_new_meme, get_meme_file_id
 
 
 def meme_name_handler(bot, update):
@@ -23,7 +23,7 @@ def memes_uploader_step1(bot, update):
 
 
 def memes_uploader_step2(bot, update):
-    bot.tmp_meme.alias = update.message.text
+    bot.tmp_meme.alias = update.message.text.strip().lower()
     logger.debug('Got an alias for a meme')
     update.message.reply_text('Now enter a url for a meme')
 
@@ -43,8 +43,13 @@ def _insert_new_meme(tmp_meme):
 
 
 def send_meme_back(bot, update):
-    file_id = 'AgADAgADBakxG8zCKEquNQl09cAjNe60qw4ABPRRFzZpUEqWgFkAAgI'
-    bot.send_photo(chat_id=update.effective_chat.id, photo=file_id)
+    alias = update.message.text.strip().lower()
+
+    try:
+        file_id = get_meme_file_id(alias)
+        bot.send_photo(chat_id=update.effective_chat.id, photo=file_id)
+    except ValueError:
+        update.message.reply_text('No meme with such name %s!' % alias)
 
 
 def get_meme_callback(bot, update):
