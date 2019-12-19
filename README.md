@@ -1,9 +1,32 @@
 ## tabtab
 
-Memes bot. Does not matter
+Funny telegram bot.
 
-### Tips
+Current features:
+
+* None
+
+### Development
+
+Create a database
 
 ```
-$ sqlite3 < init_database.sql
+$ sqlite3 database.db < init_database.sql
+```
+
+Test inserts
+
+```bash
+$ sqlite3 database.db
+sqlite>.databases
+sqlite>INSERT INTO topic(text) VALUES ('test topic');
+sqlite>SELECT * FROM topic;
+```
+
+Run database-related operations
+
+```bash
+$ poetry run python database.py
+2019-12-19 12:57:42,421 - utils - DEBUG - Inserting Topic(created=None, text='Test topic 1')...
+2019-12-19 12:57:42,422 - utils - DEBUG - Inserting Topic(created=None, text='Test topic 2')...
 ```

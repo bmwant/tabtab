@@ -17,6 +17,12 @@ class Meme(object):
     url = attr.ib(default=None)
 
 
+@attr.s
+class Topic(object):
+    created = attr.ib(default=None)
+    text = attr.ib(default='')
+
+
 @contextmanager
 def cursor():
     conn = sqlite3.connect(config.DATABASE)
@@ -34,6 +40,17 @@ def with_connection(func):
         with cursor() as c:
             return func(c, *args, **kwargs)
     return inner
+
+
+@with_connection
+def insert_new_topic(cursor, topic):
+    query = (
+        'INSERT INTO topic(text) '
+        'VALUES(?);'
+    )
+    logger.debug('Inserting %s...' % topic)
+    values = (topic.text, )
+    cursor.execute(query, values)
 
 
 @with_connection
@@ -60,4 +77,7 @@ def get_meme_by_alias(cursor, alias):
 
 
 if __name__ == '__main__':
-    pass
+    t1 = Topic(text='Test topic 1')
+    t2 = Topic(text='Test topic 2')
+    insert_new_topic(t1)
+    insert_new_topic(t2)

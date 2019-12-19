@@ -2,8 +2,7 @@ import os
 
 
 BOT_TOKEN = None
-PAYMENTWALL_TEST_TOKEN = None
-PAYLOAD_KEY = 'tabtab-payment-key'
+
 DATABASE = 'database.db'
 LIST_OF_ADMINS = [
     # List of ints
