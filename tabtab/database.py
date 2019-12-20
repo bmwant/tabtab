@@ -5,7 +5,7 @@ from contextlib import contextmanager
 import attr
 
 import config
-from utils import logger
+from tabtab.utils import logger
 
 
 @attr.s

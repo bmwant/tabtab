@@ -1,5 +1,5 @@
-from utils import logger, restricted
-from database import Meme, insert_new_meme, get_meme_by_alias
+from tabtab.utils import logger, restricted
+from tabtab.database import insert_new_meme, get_meme_by_alias
 
 
 def meme_name_handler(bot, update):
@@ -10,17 +10,9 @@ def meme_name_handler(bot, update):
     return memes_uploader_step2(bot, update)
 
 
-@restricted
-def memes_uploader_step1(bot, update):
-    # Picture received, create meme object
-    tmp_meme = Meme()
-    photo = update.message.photo[-1]
-    file = photo.get_file()
-    tmp_meme.file_id = file.file_id
-    # Set property on a bot object to share meme state
-    bot.tmp_meme = tmp_meme
-    logger.debug('Get image for a meme')
-    update.message.reply_text('Now enter alias for the meme')
+def echo(update, context):
+    logger.debug('Yes, we should be here')
+    update.message.reply_text(update.message.text)
 
 
 @restricted
