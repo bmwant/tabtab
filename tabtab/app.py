@@ -28,11 +28,8 @@ def run():
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
-
-    dp.add_handler(CommandHandler('start', start))
-
     dp.add_handler(MessageHandler(Filters.text,
-                                  handlers.echo))
+                                  handlers.check_description_changed))
 
     # filter_get_info = FilterGetInfo()
     # filter_get_meme = FilterGetMeme()

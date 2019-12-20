@@ -7,6 +7,6 @@ CREATE TABLE IF NOT EXISTS meme(
 
 
 CREATE TABLE IF NOT EXISTS topic(
-  created TEXT DEFAULT (date('now')) NOT NULL,
+  created TEXT DEFAULT (datetime('now')) NOT NULL,
   text VARCHAR(1000) NOT NULL
 );

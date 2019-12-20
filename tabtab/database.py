@@ -54,6 +54,18 @@ def insert_new_topic(cursor, topic):
 
 
 @with_connection
+def get_last_topic(cursor):
+    query = (
+        'SELECT * FROM topic '
+        'ORDER BY datetime(created) DESC, rowid DESC LIMIT 1;'
+    )
+    logger.debug('Fetching current topic...')
+    cursor.execute(query)
+    res = cursor.fetchone() or {}
+    return Topic(*res)
+
+
+@with_connection
 def insert_new_meme(cursor, meme):
     query = (
         'INSERT INTO meme(active, alias, file_id, url) '
@@ -74,10 +86,3 @@ def get_meme_by_alias(cursor, alias):
     if res is None:
         raise ValueError('No such meme %s' % alias)
     return Meme(*res)
-
-
-if __name__ == '__main__':
-    t1 = Topic(text='Test topic 1')
-    t2 = Topic(text='Test topic 2')
-    insert_new_topic(t1)
-    insert_new_topic(t2)
