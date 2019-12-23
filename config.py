@@ -1,7 +1,9 @@
 import os
 
 
-BOT_TOKEN = None
+BOT_TOKEN = None  # BotFather
+API_ID = None  # https://my.telegram.org/apps
+API_HASH = None
 
 DATABASE = 'database.db'
 LIST_OF_ADMINS = [

@@ -8,6 +8,7 @@ authors = ["Misha Behersky <bmwant@gmail.com>"]
 python = "^3.7"
 python-telegram-bot = ">=12"
 attrs = "17.4.0"
+telethon = "^1.10.9"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.3.2"

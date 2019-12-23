@@ -1,11 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from telegram.ext import (
-    Updater,
-    CommandHandler,
-    MessageHandler,
-    Filters,
-)
+from telethon.sync import TelegramClient, events
+from telethon import functions
 
 import config
 from tabtab import handlers
@@ -24,26 +18,15 @@ def start(update, context):
 
 def run():
     logger.info('Bot is running...')
-    updater = Updater(token=config.BOT_TOKEN, use_context=True)
+    bot = TelegramClient(
+        'bot', config.API_ID, config.API_HASH).start(bot_token=config.BOT_TOKEN)
 
-    # Get the dispatcher to register handlers
-    dp = updater.dispatcher
-    dp.add_handler(MessageHandler(Filters.text,
-                                  handlers.check_description_changed))
+    @bot.on(events.NewMessage)
+    async def any_message_arrived_handler(event):
+        chat = await event.get_chat()
+        result = await bot(functions.messages.GetFullChatRequest(
+            chat_id=chat.id
+        ))
+        print(result.full_chat.about)
 
-    # filter_get_info = FilterGetInfo()
-    # filter_get_meme = FilterGetMeme()
-    # dp.add_handler(MessageHandler(filter_get_info,
-    #                               handlers.get_info_callback))
-    # dp.add_handler(MessageHandler(filter_get_meme,
-    #                               handlers.get_meme_callback))
-    # log all errors
-    dp.add_error_handler(error)
-
-    # Start the Bot
-    updater.start_polling()
-
-    # Run the bot until you press Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
-    updater.idle()
+    bot.run_until_disconnected()
