@@ -4,7 +4,7 @@ Funny telegram bot.
 
 Current features:
 
-* None
+* Posting a message in a group when its description changes
 
 ### Development
 
@@ -37,5 +37,5 @@ $ poetry run python database.py
 
 ```bash
 $ cd deployment
-$ poetry run ansible-playbook -vv init.yml
+$ poetry run ansible-playbook -vv init.yml --vault-password-file ~/.vault
 ```
