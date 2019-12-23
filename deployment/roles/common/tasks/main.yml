@@ -32,6 +32,11 @@
 #    path: "{{ project_root }}"
 #    state: present
 
+- name: render app config
+  template:
+    src: "templates/config_local.py.j2"
+    dest: "{{ project_root }}/config_local.py"
+
 - name: render supervisor config
   template:
     src: "templates/supervisor_app.conf.j2"
