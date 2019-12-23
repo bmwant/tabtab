@@ -104,3 +104,4 @@ venv.bak/
 config_local.py
 database.db
 *.session
+*.session-journal

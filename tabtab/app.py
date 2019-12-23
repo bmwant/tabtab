@@ -2,18 +2,13 @@ from telethon.sync import TelegramClient, events
 from telethon import functions
 
 import config
-from tabtab import handlers
+from tabtab.database import insert_new_topic, get_last_topic, Topic
 from tabtab.utils import logger
 
 
-def error(update, context):
-    """Log Errors caused by Updates."""
-    logger.warning('Update "%s" caused error "%s"', update, context.error)
-
-
-def start(update, context):
-    """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi!')
+def check_description_changed(desc: str):
+    topic = get_last_topic()
+    return topic.text != desc
 
 
 def run():
@@ -27,6 +22,13 @@ def run():
         result = await bot(functions.messages.GetFullChatRequest(
             chat_id=chat.id
         ))
-        print(result.full_chat.about)
+        description = result.full_chat.about
+        if check_description_changed(description):
+            new_topic = Topic(text=description)
+            insert_new_topic(new_topic)
+            logger.debug(
+                'Group "%s" had description changed to "%s"',
+                chat.title, description
+            )
 
     bot.run_until_disconnected()
