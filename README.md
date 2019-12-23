@@ -30,3 +30,12 @@ $ poetry run python database.py
 2019-12-19 12:57:42,421 - utils - DEBUG - Inserting Topic(created=None, text='Test topic 1')...
 2019-12-19 12:57:42,422 - utils - DEBUG - Inserting Topic(created=None, text='Test topic 2')...
 ```
+
+
+### Deployment
+
+
+```bash
+$ cd deployment
+$ poetry run ansible-playbook -vv init.yml
+```

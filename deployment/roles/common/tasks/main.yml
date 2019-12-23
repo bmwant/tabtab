@@ -15,10 +15,17 @@
     recurse: yes
   become: true
 
+- debug:
+    msg: "{{ ansible_env.HOME }}/.poetry/bin:{{ ansible_env.PATH }}"
+
+# `gather_facts: yes` to use `ansible_env` variable
 - name: install python requirements
   shell: "poetry install"
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.poetry/bin:{{ ansible_env.PATH }}"
   args:
     chdir: "{{ project_root }}"
+    executable: "/bin/bash"
 
 #- name: install npm requirements
 #  npm:

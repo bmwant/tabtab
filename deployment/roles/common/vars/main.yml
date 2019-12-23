@@ -2,7 +2,6 @@
 
 app_alias: "tabtab"
 project_root: "/data/projects/tabtab"
-venv_path: "/data/virtualenvs/tabtab"
 repository_url: "git@github.com:bmwant/tabtab.git"
 repository_branch: "origin/master"
 exposed_port: 13888
