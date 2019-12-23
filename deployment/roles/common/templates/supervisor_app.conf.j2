@@ -1,0 +1,13 @@
+[program:{{ app_alias }}]
+environment=
+  HOME="/home/{{ ansible_user }}",
+  USER="{{ ansible_user }}",
+  PORT="{{ app_run_port }}"
+command={{ venv_path }}/bin/python runserver.py
+directory={{ project_root }}
+user={{ ansible_user }}
+autostart=true
+autorestart=true
+redirect_stderr=true
+stdout_logfile=/var/log/{{ app_alias }}.supervisor.stdout
+stopsignal=QUIT

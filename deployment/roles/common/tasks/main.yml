@@ -1,0 +1,45 @@
+---
+
+- name: clone project repository
+  git:
+    repo: "{{ repository_url }}"
+    dest: "{{ project_root }}"
+    version: "{{ repository_branch }}"
+
+- name: set correct permissions on a project
+  file:
+    path: "{{ project_root }}"
+    state: directory
+    owner: "{{ ansible_ssh_user }}"
+    group: "{{ ansible_ssh_user }}"
+    recurse: yes
+  become: true
+
+- name: install python requirements
+  shell: "poetry install"
+  args:
+    chdir: "{{ project_root }}"
+
+#- name: install npm requirements
+#  npm:
+#    path: "{{ project_root }}"
+#    state: present
+
+- name: render supervisor config
+  template:
+    src: "templates/supervisor_app.conf.j2"
+    dest: "/etc/supervisor/conf.d/{{ app_alias }}.conf"
+  notify: supervisor reload
+  become: true
+
+- name: render nginx config
+  template:
+    src: "templates/nginx_app.conf.j2"
+    dest: "/etc/nginx/conf.d/{{ app_alias }}.conf"
+  notify: nginx reload
+  become: true
+
+- name: restart app with supervisor
+  command: "/bin/true"
+  notify:
+    - restart app

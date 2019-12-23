@@ -1,0 +1,10 @@
+---
+
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - include_vars: "vars/common.yml"
+
+  roles:
+    - common

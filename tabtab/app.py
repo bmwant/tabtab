@@ -30,5 +30,7 @@ def run():
                 'Group "%s" had description changed to "%s"',
                 chat.title, description
             )
+            await bot.send_message(
+                chat.id, f'Вова знову поміняв опис!\n**{description}**')
 
     bot.run_until_disconnected()
