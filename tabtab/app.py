@@ -33,4 +33,12 @@ def run():
             await bot.send_message(
                 chat.id, f'Вова знову поміняв опис!\n**{description}**')
 
+    @bot.on(events.NewMessage)
+    async def poll_created_handler(event):
+        poll = event.message.poll
+        if event.message.poll is not None:
+            results = poll.results
+            print('Total voters', results.total_voters)
+            raise events.StopPropagation
+
     bot.run_until_disconnected()
