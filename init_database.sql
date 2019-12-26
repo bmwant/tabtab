@@ -1,12 +1,10 @@
-CREATE TABLE IF NOT EXISTS meme(
-  active INTEGER DEFAULT 0,
-  alias VARCHAR(200) NOT NULL,
-  file_id VARCHAR(200) NOT NULL,
-  url VARCHAR(400) NOT NULL
-);
-
-
 CREATE TABLE IF NOT EXISTS topic(
   created TEXT DEFAULT (datetime('now')) NOT NULL,
   text VARCHAR(1000) NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS poll(
+  message_id INTEGER NOT NULL,
+  casted INTEGER NOT NULL
 );

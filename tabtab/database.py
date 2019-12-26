@@ -9,18 +9,15 @@ from tabtab.utils import logger
 
 
 @attr.s
-class Meme(object):
-    id = attr.ib(default=None)
-    active = attr.ib(default=1)
-    alias = attr.ib(default=None)
-    file_id = attr.ib(default=None)
-    url = attr.ib(default=None)
-
-
-@attr.s
 class Topic(object):
     created = attr.ib(default=None)
     text = attr.ib(default='')
+
+
+@attr.s
+class Poll(object):
+    message_id = attr.ib(default=None)
+    casted = attr.ib(default=0)
 
 
 @contextmanager
@@ -66,23 +63,23 @@ def get_last_topic(cursor):
 
 
 @with_connection
-def insert_new_meme(cursor, meme):
+def insert_new_poll(cursor, poll):
     query = (
-        'INSERT INTO meme(active, alias, file_id, url) '
-        'VALUES(?, ?, ?, ?);'
+        'INSERT INTO poll(message_id, casted) '
+        'VALUES(?, ?);'
     )
-    logger.debug('Inserting %s...' % meme)
-    values = (1, meme.alias, meme.file_id, meme.url)
+    logger.debug('Inserting %s...' % poll)
+    values = (poll.message_id, poll.casted)
     cursor.execute(query, values)
 
 
 @with_connection
-def get_meme_by_alias(cursor, alias):
+def get_poll_by_message_id(cursor, message_id: int):
     query = (
-        'SELECT * FROM meme WHERE alias = ?;'
+        'SELECT * FROM poll WHERE id = ?;'
     )
-    cursor.execute(query, (alias,))
+    cursor.execute(query, (message_id,))
     res = cursor.fetchone()
     if res is None:
-        raise ValueError('No such meme %s' % alias)
-    return Meme(*res)
+        raise ValueError('No such record %s' % message_id)
+    return Poll(*res)

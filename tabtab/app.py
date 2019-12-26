@@ -3,12 +3,23 @@ from telethon import functions
 
 import config
 from tabtab.database import insert_new_topic, get_last_topic, Topic
+from tabtab.database import insert_new_poll, get_poll_by_message_id, Poll
 from tabtab.utils import logger
 
 
 def check_description_changed(desc: str):
     topic = get_last_topic()
     return topic.text != desc
+
+# '5199659688265777155'
+
+
+async def handle_polls(bot, event):
+    message_id = 27
+    chat = await event.get_chat()
+    import pdb; pdb.set_trace()
+    entity = await bot.get_entity(message_id)
+    print(entity)
 
 
 def run():
@@ -36,8 +47,12 @@ def run():
     @bot.on(events.NewMessage)
     async def poll_created_handler(event):
         poll = event.message.poll
+        message_id = event.message.id
+        await handle_polls(bot, event)
         if event.message.poll is not None:
             results = poll.results
+            new_poll = Poll(message_id=message_id)
+            insert_new_poll(new_poll)
             print('Total voters', results.total_voters)
             raise events.StopPropagation
 
