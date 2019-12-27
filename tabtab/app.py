@@ -1,4 +1,4 @@
-from telethon.sync import TelegramClient, events
+from telethon.sync import TelegramClient, events, types
 from telethon import functions
 
 import config
@@ -17,9 +17,30 @@ def check_description_changed(desc: str):
 async def handle_polls(bot, event):
     message_id = 27
     chat = await event.get_chat()
-    import pdb; pdb.set_trace()
-    entity = await bot.get_entity(message_id)
-    print(entity)
+    result = await bot(functions.messages.GetMessagesRequest(
+        id=[message_id]
+    ))
+    poll = result.messages[0].poll
+    await create_poll(bot)
+    # entity = await bot.get_entity(message_id)
+    # print(entity)
+    print('let me think')
+
+
+async def create_poll(bot):
+    chat_id = 345515043
+    r = await bot.send_message(chat_id, file=types.InputMediaPoll(
+        poll=types.Poll(
+            id=23234224,
+            question='Is this a poll',
+            answers=[types.PollAnswer('Yes', b'1'), types.PollAnswer('No', b'2')],
+        )
+    ))
+    ppoll = r.poll.poll
+    presults = r.poll.results
+    # import pdb; pdb.set_trace()
+    await bot.send_message(chat_id,
+                           file=types.MessageMediaPoll(poll=ppoll, results=presults))
 
 
 def run():
